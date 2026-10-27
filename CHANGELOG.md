@@ -1,3 +1,9 @@
+## 1.0.0 (2026-10-27)
+
+### Features
+
+* initial Joutio web console ([a255779](https://github.com/joutio/joutio-web-console/commit/a255779a68690ed24118c3045e9af51b6d870a69))
+
 ## [1.10.1](https://github.com/joutio/joutio-web-console/compare/v1.10.0...v1.10.1) (2026-10-18)
 
 ### Bug Fixes
