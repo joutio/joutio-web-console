@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/joutio/joutio-web-console/compare/v1.0.0...v1.1.0) (2026-11-08)
+
+### Features
+
+* **questions:** distinguish moderation states and permanent deletion ([dfcb33c](https://github.com/joutio/joutio-web-console/commit/dfcb33c3a2a2cc0fdb68534531595763559202b7))
+
 ## 1.0.0 (2026-10-27)
 
 ### Features
