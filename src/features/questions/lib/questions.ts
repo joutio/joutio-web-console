@@ -2,7 +2,8 @@ import { bffApi } from "@/lib/bff-api"
 import { ENDPOINTS } from "@/lib/endpoints"
 import type { Page } from "@/shared/types/api"
 
-export type QuestionStatus = "PENDING" | "APPROVED" | "REJECTED"
+export type QuestionStatus =
+  "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED" | "ARCHIVED"
 export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD" | "EXPERT"
 export type QuestionChoice = "A" | "B" | "C" | "D"
 export type QuestionReportReason = "QUESTION" | "IMAGE" | "ANSWERS"
@@ -12,9 +13,7 @@ export type QuestionSuspensionReason = "AUTO_REPORT_THRESHOLD" | "MANUAL"
 export type QuestionModeration = "ALL" | "ACTIVE" | "SUSPENDED" | "ARCHIVED"
 export type QuestionAdminSort = "RECENT_UPDATED" | "OLDEST_UPDATED"
 export type QuestionReportSort =
-  | "RECENT_REPORT"
-  | "OLDEST_REPORT"
-  | "MOST_REPORTED"
+  "RECENT_REPORT" | "OLDEST_REPORT" | "MOST_REPORTED"
 export type Language = "fr" | "en"
 
 export interface TopicRef {
@@ -167,29 +166,41 @@ export const questionsService = {
     bffApi.get<Page<AdminQuestionView>>(ENDPOINTS.bff.questions.list, {
       params: { ...params, reportedOnly: params.reportedOnly || undefined },
     }),
-  queue: (params: QuestionQueueParams): Promise<Page<AdminQuestionSummaryView>> =>
-    bffApi.get<Page<AdminQuestionSummaryView>>(ENDPOINTS.bff.questions.reports, {
-      params: { ...params } as Record<
-        string,
-        string | number | boolean | undefined
-      >,
-    }),
+  queue: (
+    params: QuestionQueueParams
+  ): Promise<Page<AdminQuestionSummaryView>> =>
+    bffApi.get<Page<AdminQuestionSummaryView>>(
+      ENDPOINTS.bff.questions.reports,
+      {
+        params: { ...params } as Record<
+          string,
+          string | number | boolean | undefined
+        >,
+      }
+    ),
   summary: (): Promise<QuestionReportSummaryView> =>
     bffApi.get<QuestionReportSummaryView>(
-      ENDPOINTS.bff.questions.reportSummary,
+      ENDPOINTS.bff.questions.reportSummary
     ),
   topics: (): Promise<AdminTopicOptionView[]> =>
     bffApi.get<AdminTopicOptionView[]>(ENDPOINTS.bff.questions.topics),
   detail: (questionId: string): Promise<AdminQuestionDetailView> =>
     bffApi.get<AdminQuestionDetailView>(
-      ENDPOINTS.bff.questions.detail(questionId),
+      ENDPOINTS.bff.questions.detail(questionId)
     ),
-  create: (topicId: string, input: CreateQuestionInput): Promise<{ questionId: string }> =>
+  create: (
+    topicId: string,
+    input: CreateQuestionInput
+  ): Promise<{ questionId: string }> =>
     bffApi.post<{ questionId: string }>(
       ENDPOINTS.bff.questions.create(topicId),
-      input,
+      input
     ),
-  updateText: (questionId: string, language: Language, text: string): Promise<void> =>
+  updateText: (
+    questionId: string,
+    language: Language,
+    text: string
+  ): Promise<void> =>
     bffApi.put<void>(ENDPOINTS.bff.questions.text(questionId), {
       language,
       text,
@@ -197,7 +208,7 @@ export const questionsService = {
   updateAnswers: (
     questionId: string,
     language: Language,
-    answers: { choice: QuestionChoice; text: string }[],
+    answers: { choice: QuestionChoice; text: string }[]
   ): Promise<void> =>
     bffApi.put<void>(ENDPOINTS.bff.questions.answers(questionId), {
       language,
@@ -205,14 +216,14 @@ export const questionsService = {
     }),
   updateCorrectAnswer: (
     questionId: string,
-    correctAnswer: QuestionChoice,
+    correctAnswer: QuestionChoice
   ): Promise<void> =>
     bffApi.put<void>(ENDPOINTS.bff.questions.correctAnswer(questionId), {
       correctAnswer,
     }),
   updateImageUrl: (
     questionId: string,
-    imageUrl: string | null,
+    imageUrl: string | null
   ): Promise<void> =>
     bffApi.put<void>(ENDPOINTS.bff.questions.imageUrl(questionId), {
       imageUrl,
@@ -223,7 +234,7 @@ export const questionsService = {
       language: Language
       text: string
       answers: { choice: QuestionChoice; text: string }[]
-    },
+    }
   ): Promise<void> =>
     bffApi.post<void>(ENDPOINTS.bff.questions.translations(questionId), input),
   approve: (questionId: string): Promise<void> =>
@@ -232,29 +243,40 @@ export const questionsService = {
     bffApi.post<void>(ENDPOINTS.bff.questions.reject(questionId), {
       reason: reason ?? null,
     }),
-  suspend: (questionId: string, input: QuestionModerationInput): Promise<void> =>
+  suspend: (
+    questionId: string,
+    input: QuestionModerationInput
+  ): Promise<void> =>
     bffApi.post<void>(ENDPOINTS.bff.questions.suspend(questionId), input),
-  reinstate: (questionId: string, input: QuestionModerationInput): Promise<void> =>
+  reinstate: (
+    questionId: string,
+    input: QuestionModerationInput
+  ): Promise<void> =>
     bffApi.post<void>(ENDPOINTS.bff.questions.reinstate(questionId), input),
-  archive: (questionId: string, input: QuestionModerationInput): Promise<void> =>
+  deleteQuestion: (questionId: string): Promise<void> =>
+    bffApi.delete<void>(`/api/admin/questions/${questionId}`),
+  archive: (
+    questionId: string,
+    input: QuestionModerationInput
+  ): Promise<void> =>
     bffApi.post<void>(ENDPOINTS.bff.questions.archive(questionId), input),
   restore: (questionId: string): Promise<void> =>
     bffApi.post<void>(ENDPOINTS.bff.questions.restore(questionId)),
   resolveReport: (
     reportId: string,
-    input: ResolveQuestionReportsInput,
+    input: ResolveQuestionReportsInput
   ): Promise<{ resolvedCount: number }> =>
     bffApi.post<{ resolvedCount: number }>(
       ENDPOINTS.bff.questions.resolveReport(reportId),
-      input,
+      input
     ),
   resolveReports: (
     questionId: string,
-    input: ResolveQuestionReportsInput,
+    input: ResolveQuestionReportsInput
   ): Promise<{ resolvedCount: number }> =>
     bffApi.post<{ resolvedCount: number }>(
       ENDPOINTS.bff.questions.resolveReports(questionId),
-      input,
+      input
     ),
   uploadImage: async (file: File): Promise<{ url: string }> => {
     const form = new FormData()

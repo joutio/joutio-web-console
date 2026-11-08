@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDateTime } from "@/lib/format"
-import { EmptyState, ErrorState, LoadingState } from "@/shared/components/DataState"
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/shared/components/DataState"
 import { FilterBar, FilterField } from "@/shared/components/FilterBar"
 import { Modal } from "@/shared/components/Modal"
 import { PageHeader } from "@/shared/components/PageHeader"
@@ -210,7 +214,9 @@ function ReportedQuestionsTab() {
                 <ReportSummaryRow
                   key={question.questionId}
                   question={question}
-                  onOpen={() => void navigate(`/questions/${question.questionId}`)}
+                  onOpen={() =>
+                    void navigate(`/questions/${question.questionId}`)
+                  }
                 />
               ))}
             </tbody>
@@ -248,7 +254,9 @@ function ReportSummaryRow({
               —
             </span>
           )}
-          <span className="truncate">{question.texts.fr ?? question.texts.en ?? "—"}</span>
+          <span className="truncate">
+            {question.texts.fr ?? question.texts.en ?? "—"}
+          </span>
         </div>
       </td>
       <td className="px-4 py-2 text-muted-foreground">
@@ -257,8 +265,6 @@ function ReportSummaryRow({
       <td className="px-4 py-2">
         <div className="flex flex-wrap gap-1">
           <StatusBadge status={question.status} />
-          {question.suspended && <Badge variant="destructive">Suspendue</Badge>}
-          {question.archived && <Badge variant="secondary">Archivée</Badge>}
         </div>
       </td>
       <td className="px-4 py-2 whitespace-nowrap">
@@ -295,7 +301,8 @@ function QuestionCatalogueTab() {
     q: query || undefined,
     topicId: topicId === ALL ? undefined : topicId,
     status: status === ALL ? undefined : (status as QuestionStatus),
-    difficulty: difficulty === ALL ? undefined : (difficulty as QuestionDifficulty),
+    difficulty:
+      difficulty === ALL ? undefined : (difficulty as QuestionDifficulty),
     moderation,
     reportedOnly: reportedOnly === "true",
     page,
@@ -437,7 +444,9 @@ function QuestionCatalogueTab() {
                 <CatalogueRow
                   key={question.questionId}
                   question={question}
-                  onOpen={() => void navigate(`/questions/${question.questionId}`)}
+                  onOpen={() =>
+                    void navigate(`/questions/${question.questionId}`)
+                  }
                 />
               ))}
             </tbody>
@@ -494,8 +503,6 @@ function CatalogueRow({
       <td className="px-4 py-2">
         <div className="flex flex-wrap gap-1">
           <StatusBadge status={question.status} />
-          {question.suspended && <Badge variant="destructive">Suspendue</Badge>}
-          {question.archived && <Badge variant="secondary">Archivée</Badge>}
         </div>
       </td>
       <td className="px-4 py-2 text-muted-foreground">
@@ -561,7 +568,11 @@ function StatusBadge({ status }: { status: QuestionStatus }) {
         ? "Approuvée"
         : status === "REJECTED"
           ? "Rejetée"
-          : "En attente"}
+          : status === "SUSPENDED"
+            ? "Suspendue"
+            : status === "ARCHIVED"
+              ? "Archivée"
+              : "En attente"}
     </Badge>
   )
 }
@@ -625,7 +636,7 @@ function CreateQuestionModal({
             language: "fr",
             text,
             answers: (["A", "B", "C", "D"] as QuestionChoice[]).map(
-              (choice) => ({ choice, text: answers[choice] }),
+              (choice) => ({ choice, text: answers[choice] })
             ),
           },
         ],
@@ -641,7 +652,7 @@ function CreateQuestionModal({
           setImageUrl("")
           onCreated(result.questionId)
         },
-      },
+      }
     )
   }
 
@@ -673,7 +684,10 @@ function CreateQuestionModal({
       <div className="space-y-3">
         <label className="block text-xs text-muted-foreground">
           Sujet
-          <Select value={topicId} onValueChange={(value) => setTopicId(value ?? "")}>
+          <Select
+            value={topicId}
+            onValueChange={(value) => setTopicId(value ?? "")}
+          >
             <SelectTrigger className="mt-1 w-full">
               <SelectValue placeholder="Choisir un sujet…" />
             </SelectTrigger>
@@ -696,10 +710,7 @@ function CreateQuestionModal({
           />
         </label>
         {(["A", "B", "C", "D"] as QuestionChoice[]).map((choice) => (
-          <label
-            key={choice}
-            className="block text-xs text-muted-foreground"
-          >
+          <label key={choice} className="block text-xs text-muted-foreground">
             Réponse {choice}
             <Input
               className="mt-1"

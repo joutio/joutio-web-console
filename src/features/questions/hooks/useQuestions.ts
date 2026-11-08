@@ -78,17 +78,17 @@ export function useSaveQuestion(questionId: string) {
         await questionsService.updateText(
           questionId,
           content.language,
-          content.text,
+          content.text
         )
         await questionsService.updateAnswers(
           questionId,
           content.language,
-          content.answers,
+          content.answers
         )
       }
       await questionsService.updateCorrectAnswer(
         questionId,
-        input.correctAnswer,
+        input.correctAnswer
       )
       await questionsService.updateImageUrl(questionId, input.imageUrl ?? null)
     },
@@ -104,6 +104,7 @@ export type QuestionModerationAction =
   | "reject"
   | "suspend"
   | "reinstate"
+  | "delete"
   | "archive"
   | "restore"
 
@@ -126,6 +127,8 @@ export function useQuestionModeration(questionId: string) {
           return questionsService.suspend(questionId, input ?? {})
         case "reinstate":
           return questionsService.reinstate(questionId, input ?? {})
+        case "delete":
+          return questionsService.deleteQuestion(questionId)
         case "archive":
           return questionsService.archive(questionId, input ?? {})
         case "restore":
@@ -176,6 +179,8 @@ function actionLabel(action: QuestionModerationAction): string {
       return "Question suspendue"
     case "reinstate":
       return "Question réactivée"
+    case "delete":
+      return "Question supprimée"
     case "archive":
       return "Question archivée"
     case "restore":

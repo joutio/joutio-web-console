@@ -117,3 +117,9 @@ npm run build
 - TODO : release train (SDK/console/identity/web-console) + sync ArgoCD, scellement
   `joutio-console-secret`, design maison à affiner (états vides, dense tables, filtres),
   détection transitions/alertes.
+
+### Statuts et suppression des questions — 2026-11-08
+
+La console distingue les cinq statuts `PENDING|APPROVED|REJECTED|SUSPENDED|ARCHIVED`.
+Archiver/restaurer reste réversible (restauration en attente) ; « Supprimer définitivement » appelle
+`DELETE /api/admin/questions/{id}` après confirmation puis revient au catalogue.

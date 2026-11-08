@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { useQueryClient } from "@tanstack/react-query"
 import {
   ArrowLeft,
@@ -29,7 +29,11 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { formatDateTime } from "@/lib/format"
 import { queryKeys } from "@/lib/query-keys"
-import { EmptyState, ErrorState, LoadingState } from "@/shared/components/DataState"
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@/shared/components/DataState"
 import { PageHeader } from "@/shared/components/PageHeader"
 import {
   useQuestionDetail,
@@ -60,7 +64,9 @@ export function QuestionDetailPage() {
 
   if (detail.isPending) return <LoadingState rows={8} />
   if (detail.error) {
-    return <ErrorState error={detail.error} onRetry={() => void detail.refetch()} />
+    return (
+      <ErrorState error={detail.error} onRetry={() => void detail.refetch()} />
+    )
   }
   if (!detail.data) {
     return <EmptyState title="Question introuvable" />
@@ -68,44 +74,52 @@ export function QuestionDetailPage() {
 
   return (
     <section className="space-y-4">
-      <Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/questions" />}>
+      <Button
+        variant="ghost"
+        size="sm"
+        nativeButton={false}
+        render={<Link to="/questions" />}
+      >
         <ArrowLeft /> Retour
       </Button>
       <PageHeader
         title="Question"
-        description={detail.data.question.topic.names.fr ?? detail.data.question.topic.topicId}
+        description={
+          detail.data.question.topic.names.fr ??
+          detail.data.question.topic.topicId
+        }
       />
       <QuestionEditorPanel
         key={`${questionId}:${detail.data.question.updatedAt ?? ""}`}
         question={detail.data.question}
       />
-      <ReportsPanel
-        questionId={questionId}
-        reports={detail.data.reports}
-      />
+      <ReportsPanel questionId={questionId} reports={detail.data.reports} />
     </section>
   )
 }
 
 function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const upload = useUploadQuestionImage()
   const moderation = useQuestionModeration(question.questionId)
-  const [french, setFrench] = useState<ContentDraft>(() => toDraft(question, "fr"))
+  const [french, setFrench] = useState<ContentDraft>(() =>
+    toDraft(question, "fr")
+  )
   const [english, setEnglish] = useState<ContentDraft | null>(() =>
     question.contents.some((content) => content.language === "en")
       ? toDraft(question, "en")
-      : null,
+      : null
   )
   const [correctAnswer, setCorrectAnswer] = useState<QuestionChoice>(
-    question.correctAnswer,
+    question.correctAnswer
   )
   const [imageUrl, setImageUrl] = useState(question.imageUrl ?? "")
   const [saving, setSaving] = useState(false)
 
   const originalLanguages = useMemo(
     () => new Set(question.contents.map((content) => content.language)),
-    [question.contents],
+    [question.contents]
   )
 
   const save = async () => {
@@ -117,12 +131,12 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
           await questionsService.updateText(
             question.questionId,
             draft.language,
-            draft.text,
+            draft.text
           )
           await questionsService.updateAnswers(
             question.questionId,
             draft.language,
-            answers,
+            answers
           )
         } else if (draft.text.trim()) {
           await questionsService.addTranslation(question.questionId, {
@@ -134,11 +148,11 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
       }
       await questionsService.updateCorrectAnswer(
         question.questionId,
-        correctAnswer,
+        correctAnswer
       )
       await questionsService.updateImageUrl(
         question.questionId,
-        imageUrl.trim() || null,
+        imageUrl.trim() || null
       )
       toast.success("Question mise à jour")
       await queryClient.invalidateQueries({ queryKey: queryKeys.questions.all })
@@ -153,15 +167,10 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
     <div className="space-y-4 rounded-lg border border-border bg-background p-4">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={question.status} />
-        {question.suspended && (
-          <Badge variant="destructive">
-            Suspendue
-            {question.suspensionReason === "AUTO_REPORT_THRESHOLD"
-              ? " · auto"
-              : ""}
-          </Badge>
-        )}
-        {question.archived && <Badge variant="secondary">Archivée</Badge>}
+        {question.status === "SUSPENDED" &&
+          question.suspensionReason === "AUTO_REPORT_THRESHOLD" && (
+            <Badge variant="destructive">Suspension automatique</Badge>
+          )}
         <Badge variant="outline">
           <Flag className="size-3" /> {question.openReportCount} ouvert(s) /{" "}
           {question.totalReportCount}
@@ -183,11 +192,7 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
       )}
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ContentEditor
-          label="Français"
-          draft={french}
-          onChange={setFrench}
-        />
+        <ContentEditor label="Français" draft={french} onChange={setFrench} />
         {english ? (
           <ContentEditor
             label="Anglais"
@@ -275,7 +280,7 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
       </div>
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-        {question.status !== "APPROVED" && (
+        {question.status !== "APPROVED" && question.status !== "ARCHIVED" && (
           <Button
             size="sm"
             variant="outline"
@@ -285,7 +290,7 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
             <Check /> Approuver
           </Button>
         )}
-        {question.status !== "REJECTED" && (
+        {question.status !== "REJECTED" && question.status !== "ARCHIVED" && (
           <Button
             size="sm"
             variant="outline"
@@ -298,7 +303,7 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
             <X /> Retirer
           </Button>
         )}
-        {question.status === "APPROVED" && !question.suspended ? (
+        {question.status === "APPROVED" ? (
           <Button
             size="sm"
             variant="outline"
@@ -306,21 +311,23 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
             onClick={() => {
               if (!confirm("Suspendre cette question ?")) return
               const input: QuestionModerationInput = {
-                note: window.prompt("Motif de la suspension (optionnel)") ?? undefined,
+                note:
+                  window.prompt("Motif de la suspension (optionnel)") ??
+                  undefined,
               }
               moderation.mutate({ action: "suspend", input })
             }}
           >
             <ShieldAlert /> Suspendre
           </Button>
-        ) : question.suspended ? (
+        ) : question.status === "SUSPENDED" ? (
           <Button
             size="sm"
             variant="outline"
             disabled={moderation.isPending}
             onClick={() => {
               const closeReports = confirm(
-                "Réactiver la question et clôturer les signalements ouverts ?",
+                "Réactiver la question et clôturer les signalements ouverts ?"
               )
               moderation.mutate({
                 action: "reinstate",
@@ -331,14 +338,32 @@ function QuestionEditorPanel({ question }: { question: AdminQuestionView }) {
             <ShieldCheck /> Réactiver
           </Button>
         ) : null}
-        {!question.archived ? (
+        <Button
+          size="sm"
+          variant="destructive"
+          disabled={moderation.isPending}
+          onClick={() => {
+            if (
+              confirm(
+                "Supprimer définitivement cette question ? Cette action est irréversible."
+              )
+            )
+              moderation.mutate(
+                { action: "delete" },
+                { onSuccess: () => navigate("/questions") }
+              )
+          }}
+        >
+          <Trash2 /> Supprimer définitivement
+        </Button>
+        {question.status !== "ARCHIVED" ? (
           <Button
             size="sm"
             variant="destructive"
             disabled={moderation.isPending}
             onClick={() => {
               const closeReports = confirm(
-                "Archiver la question et clôturer les signalements ouverts ?",
+                "Archiver la question et clôturer les signalements ouverts ?"
               )
               moderation.mutate({
                 action: "archive",
@@ -395,13 +420,19 @@ function ReportsPanel({
               onResolve={() =>
                 resolve.mutate({
                   reportId: report.reportId,
-                  input: { resolution: "RESOLVED", note: note.trim() || undefined },
+                  input: {
+                    resolution: "RESOLVED",
+                    note: note.trim() || undefined,
+                  },
                 })
               }
               onDismiss={() =>
                 resolve.mutate({
                   reportId: report.reportId,
-                  input: { resolution: "DISMISSED", note: note.trim() || undefined },
+                  input: {
+                    resolution: "DISMISSED",
+                    note: note.trim() || undefined,
+                  },
                 })
               }
             />
@@ -424,7 +455,10 @@ function ReportsPanel({
             disabled={resolve.isPending}
             onClick={() =>
               resolve.mutate({
-                input: { resolution: "RESOLVED", note: note.trim() || undefined },
+                input: {
+                  resolution: "RESOLVED",
+                  note: note.trim() || undefined,
+                },
               })
             }
           >
@@ -482,7 +516,9 @@ function ReportCard({
           )}
           <p className="mt-1 text-muted-foreground">
             Bonne réponse : {report.snapshot.correctAnswer ?? "—"} ·{" "}
-            {report.snapshot.source === "PLAYED" ? "version jouée" : "version actuelle"}
+            {report.snapshot.source === "PLAYED"
+              ? "version jouée"
+              : "version actuelle"}
           </p>
         </div>
       )}
@@ -499,7 +535,12 @@ function ReportCard({
           <Button size="sm" variant="ghost" onClick={onDismiss} disabled={busy}>
             <X /> Ignorer
           </Button>
-          <Button size="sm" variant="outline" onClick={onResolve} disabled={busy}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onResolve}
+            disabled={busy}
+          >
             <Check /> Résoudre
           </Button>
         </div>
@@ -551,9 +592,12 @@ function ContentEditor({
   )
 }
 
-function toDraft(question: AdminQuestionView, language: Language): ContentDraft {
+function toDraft(
+  question: AdminQuestionView,
+  language: Language
+): ContentDraft {
   const content = question.contents.find(
-    (candidate) => candidate.language === language,
+    (candidate) => candidate.language === language
   )
   const answers: Record<QuestionChoice, string> = { A: "", B: "", C: "", D: "" }
   content?.answers.forEach((answer) => {
@@ -572,7 +616,7 @@ function toAnswers(draft: ContentDraft): AnswerView[] {
 function StatusBadge({
   status,
 }: {
-  status: "PENDING" | "APPROVED" | "REJECTED"
+  status: "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED" | "ARCHIVED"
 }) {
   const tone =
     status === "APPROVED"
@@ -586,7 +630,11 @@ function StatusBadge({
         ? "Approuvée"
         : status === "REJECTED"
           ? "Rejetée"
-          : "En attente"}
+          : status === "SUSPENDED"
+            ? "Suspendue"
+            : status === "ARCHIVED"
+              ? "Archivée"
+              : "En attente"}
     </Badge>
   )
 }
