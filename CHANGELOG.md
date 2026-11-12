@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/joutio/joutio-web-console/compare/v1.1.0...v1.2.0) (2026-11-12)
+
+### Features
+
+* **players:** grant and revoke Premium from the player file ([67d7aff](https://github.com/joutio/joutio-web-console/commit/67d7aff0df2255f83836fc954c151675924461fa))
+
 ## [1.1.0](https://github.com/joutio/joutio-web-console/compare/v1.0.0...v1.1.0) (2026-11-08)
 
 ### Features
