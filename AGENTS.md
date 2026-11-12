@@ -83,7 +83,10 @@ signalements ouverts. Catalogue et file consomment `GET /api/admin/users` et
 `GET /api/admin/user-reports` du BFF (`ROLE_ADMIN`). `/user-reports/:userId` affiche le compte,
 le profil et les signalements ; l'admin peut suspendre (motifs groupés — comportement, contenu,
 intégrité du jeu, plateforme —, durée de 1 h à 1 an, personnalisée en heures/jours/semaines/mois ou
-définitive, note **interne**, clôture des signalements ouverts) ou réactiver. Le statut de compte
+définitive, note **interne**, clôture des signalements ouverts) ou réactiver. Il peut aussi
+**offrir, prolonger ou retirer Premium** (« Offrir / Gérer Premium », échéance optionnelle,
+`PUT|DELETE /api/admin/users/{userId}/premium`) ; la fiche affiche le droit, son échéance et son
+origine. Le statut de compte
 est la source de vérité de `joutio-identity` ; le BFF applique la suspension (API, sessions,
 refresh) et expose le badge public sur les vues joueur.
 

@@ -81,6 +81,29 @@ export interface AdminUserAccountView {
   reinstatementReason: string | null
   reinstatementNote: string | null
   protectedAccount: boolean
+  /** Droit Premium effectif accordé (hors rôle admin). */
+  premium: boolean
+  /** Échéance du droit ; `null` = sans échéance ou aucun droit. */
+  premiumUntil: string | null
+  premiumSource: PremiumSource | null
+  premiumGrantedAt: string | null
+  premiumGrantedBy: string | null
+}
+
+export type PremiumSource = "MANUAL" | "APP_STORE" | "PLAY" | "WEB"
+
+export const PREMIUM_SOURCE_LABELS: Record<PremiumSource, string> = {
+  MANUAL: "Attribution manuelle",
+  APP_STORE: "App Store",
+  PLAY: "Google Play",
+  WEB: "Web (Stripe)",
+}
+
+export interface AdminUserPremiumView {
+  userId: string
+  premium: boolean
+  premiumUntil: string | null
+  premiumSource: PremiumSource | null
 }
 
 export interface AdminUserProfileView {
@@ -248,6 +271,18 @@ export const userModerationService = {
     bffApi.post<AdminUserModerationView>(
       ENDPOINTS.bff.userModeration.reinstate(userId),
       { note: note || null },
+    ),
+  grantPremium: (
+    userId: string,
+    premiumUntil: string | null,
+  ): Promise<AdminUserPremiumView> =>
+    bffApi.put<AdminUserPremiumView>(
+      ENDPOINTS.bff.userModeration.premium(userId),
+      { premiumUntil },
+    ),
+  revokePremium: (userId: string): Promise<AdminUserPremiumView> =>
+    bffApi.delete<AdminUserPremiumView>(
+      ENDPOINTS.bff.userModeration.premium(userId),
     ),
   resolveReport: (
     reportId: string,

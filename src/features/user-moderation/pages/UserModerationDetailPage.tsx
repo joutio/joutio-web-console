@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom"
 import {
   ArrowLeft,
   Check,
+  Crown,
   Flag,
   ShieldAlert,
   ShieldCheck,
@@ -31,13 +32,17 @@ import {
 import { Modal } from "@/shared/components/Modal"
 import { PageHeader } from "@/shared/components/PageHeader"
 import {
+  useGrantPremium,
   useReinstateUser,
   useResolveUserReports,
+  useRevokePremium,
   useSuspendUser,
   useUserModerationDetail,
 } from "../hooks/useUserModeration"
 import {
+  PREMIUM_SOURCE_LABELS,
   USER_REPORT_REASON_LABELS,
+  type AdminUserAccountView,
   USER_SUSPENSION_REASON_LABELS,
   type AdminUserReportView,
   type UserReportResolution,
@@ -49,6 +54,7 @@ export function UserModerationDetailPage() {
   const detail = useUserModerationDetail(userId)
   const [suspendOpen, setSuspendOpen] = useState(false)
   const [reinstateOpen, setReinstateOpen] = useState(false)
+  const [premiumOpen, setPremiumOpen] = useState(false)
 
   if (detail.isLoading) {
     return <LoadingState rows={8} />
@@ -82,6 +88,15 @@ export function UserModerationDetailPage() {
         description={`Dossier joueur · ${account.email}`}
         actions={
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={account.protectedAccount}
+              onClick={() => setPremiumOpen(true)}
+            >
+              <Crown className="size-4" />
+              {account.premium ? "Gérer Premium" : "Offrir Premium"}
+            </Button>
             {account.suspended ? (
               <Button
                 variant="outline"
@@ -129,6 +144,17 @@ export function UserModerationDetailPage() {
                 <span className="font-mono text-xs">{account.userId}</span>
               </Row>
               <Row label="Créé le">{formatDateTime(account.createdAt)}</Row>
+              <Row label="Premium">
+                <PremiumBadge account={account} />
+              </Row>
+              {account.premiumSource ? (
+                <Row label="Origine Premium">
+                  {PREMIUM_SOURCE_LABELS[account.premiumSource]}
+                  {account.premiumGrantedBy
+                    ? ` · ${account.premiumGrantedBy}`
+                    : ""}
+                </Row>
+              ) : null}
               {account.suspended ? (
                 <>
                   <Row label="Motif">
@@ -196,6 +222,13 @@ export function UserModerationDetailPage() {
         open={reinstateOpen}
         onClose={() => setReinstateOpen(false)}
       />
+      {premiumOpen ? (
+        <PremiumModal
+          account={account}
+          open
+          onClose={() => setPremiumOpen(false)}
+        />
+      ) : null}
     </section>
   )
 }
@@ -733,6 +766,117 @@ function ReinstateUserModal({
           onChange={(event) => setNote(event.target.value)}
           maxLength={500}
         />
+      </div>
+    </Modal>
+  )
+}
+
+function PremiumBadge({ account }: { account: AdminUserAccountView }) {
+  if (account.premium) {
+    return (
+      <Badge variant="outline">
+        <Crown className="size-3" />
+        {account.premiumUntil
+          ? `Jusqu'au ${formatDateTime(account.premiumUntil)}`
+          : "Sans échéance"}
+      </Badge>
+    )
+  }
+  if (account.premiumSource) {
+    return (
+      <span className="text-muted-foreground">
+        {account.suspended ? "Neutralisé (suspension)" : "Échu"}
+      </span>
+    )
+  }
+  return <span className="text-muted-foreground">Non</span>
+}
+
+/** Date `YYYY-MM-DD` (fin de journée locale) → ISO, ou `null` = sans échéance. */
+function premiumUntilIso(value: string): string | null {
+  if (!value) {
+    return null
+  }
+  const date = new Date(`${value}T23:59:59`)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
+}
+
+function PremiumModal({
+  account,
+  open,
+  onClose,
+}: {
+  account: AdminUserAccountView
+  open: boolean
+  onClose: () => void
+}) {
+  const grant = useGrantPremium(account.userId)
+  const revoke = useRevokePremium(account.userId)
+  const [until, setUntil] = useState(
+    account.premiumUntil ? account.premiumUntil.slice(0, 10) : "",
+  )
+  const pending = grant.isPending || revoke.isPending
+  const today = new Date().toISOString().slice(0, 10)
+  const invalid = until !== "" && until < today
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={account.premium ? "Gérer Premium" : "Offrir Premium"}
+      description="Attribution manuelle (support, testeurs). Le droit est actif en quelques secondes, sans reconnexion du joueur."
+      footer={
+        <>
+          {account.premium ? (
+            <Button
+              variant="destructive"
+              className="mr-auto"
+              onClick={() => revoke.mutate(undefined, { onSuccess: onClose })}
+              disabled={pending}
+            >
+              {revoke.isPending ? "Retrait…" : "Retirer Premium"}
+            </Button>
+          ) : null}
+          <Button variant="ghost" onClick={onClose} disabled={pending}>
+            Annuler
+          </Button>
+          <Button
+            onClick={() =>
+              grant.mutate(premiumUntilIso(until), { onSuccess: onClose })
+            }
+            disabled={pending || invalid}
+          >
+            {grant.isPending
+              ? "Enregistrement…"
+              : account.premium
+                ? "Mettre à jour"
+                : "Offrir Premium"}
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-1">
+        <label className="text-xs text-muted-foreground" htmlFor="premium-until">
+          Échéance (vide = sans échéance)
+        </label>
+        <Input
+          id="premium-until"
+          type="date"
+          min={today}
+          value={until}
+          onChange={(event) => setUntil(event.target.value)}
+        />
+        {invalid ? (
+          <p className="text-xs text-destructive">
+            L'échéance doit être dans le futur.
+          </p>
+        ) : null}
+        {account.suspended ? (
+          <p className="text-xs text-muted-foreground">
+            Compte suspendu : le droit sera enregistré mais neutralisé jusqu'à la
+            réactivation.
+          </p>
+        ) : null}
       </div>
     </Modal>
   )

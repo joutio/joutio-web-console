@@ -87,6 +87,33 @@ export function useReinstateUser(userId: string) {
   })
 }
 
+export function useGrantPremium(userId: string) {
+  const invalidate = useInvalidateUserModeration()
+  return useMutation({
+    mutationFn: (premiumUntil: string | null) =>
+      userModerationService.grantPremium(userId, premiumUntil),
+    onSuccess: (result) => {
+      toast.success(
+        result.premiumUntil
+          ? "Premium accordé jusqu'à l'échéance"
+          : "Premium accordé sans échéance",
+      )
+      invalidate()
+    },
+  })
+}
+
+export function useRevokePremium(userId: string) {
+  const invalidate = useInvalidateUserModeration()
+  return useMutation({
+    mutationFn: () => userModerationService.revokePremium(userId),
+    onSuccess: () => {
+      toast.success("Premium retiré")
+      invalidate()
+    },
+  })
+}
+
 export function useResolveUserReports(userId: string) {
   const invalidate = useInvalidateUserModeration()
   return useMutation({

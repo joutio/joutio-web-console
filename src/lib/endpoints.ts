@@ -60,6 +60,8 @@ export const ENDPOINTS = {
         `/api/admin/users/${segment(userId)}/suspend`,
       reinstate: (userId: string) =>
         `/api/admin/users/${segment(userId)}/reinstate`,
+      premium: (userId: string) =>
+        `/api/admin/users/${segment(userId)}/premium`,
       resolveReport: (reportId: string) =>
         `/api/admin/user-reports/${segment(reportId)}/resolve`,
       resolveReports: (userId: string) =>
