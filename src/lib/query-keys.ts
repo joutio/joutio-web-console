@@ -43,6 +43,11 @@ export const queryKeys = {
         page,
       ] as const,
   },
+  contentModeration: {
+    topics: () => ["bff", "content-moderation", "topics"] as const,
+    notices: (status: string) => ["bff", "content-moderation", "notices", status] as const,
+    summary: () => ["bff", "content-moderation", "summary"] as const,
+  },
   audit: {
     list: (page: number, size: number) =>
       ["console", "audit", page, size] as const,

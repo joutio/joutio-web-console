@@ -6,7 +6,7 @@ export type QuestionStatus =
   "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED" | "ARCHIVED"
 export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD" | "EXPERT"
 export type QuestionChoice = "A" | "B" | "C" | "D"
-export type QuestionReportReason = "QUESTION" | "IMAGE" | "ANSWERS"
+export type QuestionReportReason = "QUESTION" | "IMAGE" | "ANSWERS" | "COPYRIGHT"
 export type QuestionReportStatus = "OPEN" | "RESOLVED" | "DISMISSED"
 export type QuestionReportResolution = "RESOLVED" | "DISMISSED"
 export type QuestionSuspensionReason = "AUTO_REPORT_THRESHOLD" | "MANUAL"
@@ -111,6 +111,10 @@ export interface AdminTopicOptionView {
   names: Partial<Record<Language, string>>
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED"
   questionsCount: number
+  /** Badge « Officiel » (2026-11-15). */
+  official?: boolean
+  /** Fermé par la modération (2026-11-15). */
+  closed?: boolean
 }
 
 export interface QuestionReportSummaryView {

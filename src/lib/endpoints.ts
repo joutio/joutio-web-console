@@ -50,6 +50,18 @@ export const ENDPOINTS = {
       resolveReports: (questionId: string) =>
         `/api/admin/questions/${segment(questionId)}/reports/resolve`,
     },
+    /** Badge « Officiel », fermeture et réouverture d'un sujet (2026-11-15). */
+    topics: {
+      official: (topicId: string) => `/api/admin/topics/${segment(topicId)}/official`,
+      close: (topicId: string) => `/api/admin/topics/${segment(topicId)}/close`,
+      reopen: (topicId: string) => `/api/admin/topics/${segment(topicId)}/reopen`,
+    },
+    /** Notifications de contenu illicite (LCEN/DSA, 2026-11-15). */
+    contentNotices: {
+      list: "/api/admin/content-notices",
+      summary: "/api/admin/content-notices/summary",
+      decide: (noticeId: string) => `/api/admin/content-notices/${segment(noticeId)}/decision`,
+    },
     userModeration: {
       catalogue: "/api/admin/users",
       queue: "/api/admin/user-reports",

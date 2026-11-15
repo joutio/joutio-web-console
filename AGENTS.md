@@ -75,6 +75,15 @@ d'image via `POST /api/media`, l'approbation/rejet, la suspension/réactivation,
 restauration et la résolution unitaire ou en masse des signalements. Le badge de navigation
 compte les signalements ouverts (`/api/admin/question-reports/summary`, polling 60 s).
 
+**Sujets** (2026-11-15) : `/topics` liste les sujets (`/api/admin/question-topics`) et permet de poser ou retirer le
+badge **Officiel** (`PUT /api/admin/topics/{id}/official`), de **fermer** un sujet avec un motif communiqué à son
+équipe (`POST …/close` : brouillon, publication bloquée) et de le **rouvrir** (`POST …/reopen`).
+
+**Notifications** (2026-11-15) : `/content-notices` est la file des notifications de contenu illicite (LCEN/DSA),
+reçues par le formulaire de la landing ou le menu « Signaler le sujet » des apps (`/api/admin/content-notices`).
+L'admin retire le contenu depuis Sujets, Médias ou Questions, puis enregistre une **décision motivée** (image retirée,
+question supprimée, sujet fermé, rejet). Le badge de navigation compte les notifications à traiter (polling 60 s).
+
 **Joueurs** : l'entrée de navigation « Joueurs » (`/user-reports`) expose deux onglets —
 **Signalements** (file groupée par joueur avec filtres statut/compte/tri et recherche admin
 pseudonyme/email/ID) et **Catalogue** (tous les joueurs, recherche pseudonyme/email/identifiant,

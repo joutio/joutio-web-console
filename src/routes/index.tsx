@@ -20,6 +20,7 @@ import {
   ProcessorDetailPage,
   ProcessorsPage,
 } from "@/features/processors/pages"
+import { ContentNoticesPage, TopicsAdminPage } from "@/features/content-moderation/pages"
 import { QuestionDetailPage, QuestionsPage } from "@/features/questions/pages"
 import {
   PlayersPage,
@@ -66,6 +67,8 @@ export function AppRoutes() {
             <Route path="media" element={<MediaPage />} />
             <Route path="questions" element={<QuestionsPage />} />
             <Route path="questions/:questionId" element={<QuestionDetailPage />} />
+            <Route path="topics" element={<TopicsAdminPage />} />
+            <Route path="content-notices" element={<ContentNoticesPage />} />
             <Route path="user-reports" element={<PlayersPage />} />
             <Route
               path="user-reports/:userId"

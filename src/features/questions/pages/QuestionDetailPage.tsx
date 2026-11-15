@@ -56,6 +56,7 @@ const REASON_LABELS: Record<QuestionReportReason, string> = {
   QUESTION: "Énoncé",
   IMAGE: "Image",
   ANSWERS: "Réponses",
+  COPYRIGHT: "Droits d’auteur",
 }
 
 export function QuestionDetailPage() {
