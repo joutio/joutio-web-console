@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/joutio/joutio-web-console/compare/v1.2.0...v1.3.0) (2026-11-15)
+
+### Features
+
+* **moderation:** topics page and content notices queue ([65548eb](https://github.com/joutio/joutio-web-console/commit/65548ebeb46b453d340d74a8b788c7ada923fbca))
+
 ## [1.2.0](https://github.com/joutio/joutio-web-console/compare/v1.1.0...v1.2.0) (2026-11-12)
 
 ### Features
