@@ -5,7 +5,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Contrat device (source unique : shared/theme/tokens.ts, doc : best-practices/.frontend/responsive-sizing.md).
+/* Contrat device de la console.
    `compact` < 640 px · `tablet` 640-1023 px · `desktop` >= 1024 px · `touch` = compact + tablette. */
 @custom-variant compact (@media (width < 40rem));
 @custom-variant tablet (@media (width >= 40rem) and (width < 64rem));

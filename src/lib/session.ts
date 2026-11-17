@@ -1,6 +1,6 @@
 /**
  * Passerelle de session : permet à `lib/api.ts` d'accéder au token sans dépendre de la feature
- * `auth` (inversion de dépendance, cf. `best-practices/.frontend/folder-structure.md`).
+ * `auth` (inversion de dépendance, cf. `docs/frontend/architecture.md`).
  */
 export interface SessionGateway {
   getAccessToken: () => string | null

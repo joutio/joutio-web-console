@@ -16,7 +16,7 @@ export interface ApiClientConfig {
 
 /**
  * Client HTTP unique de l'application (fetch, JSON, timeout, Bearer, gestion 401).
- * Aucun autre fichier ne parle HTTP (`best-practices/.frontend/api-integration.md`).
+ * Aucun autre fichier ne parle HTTP (`docs/frontend/architecture.md`).
  */
 export function createApiClient(config: ApiClientConfig) {
   const timeoutMs = config.defaultTimeoutMs ?? 15_000
