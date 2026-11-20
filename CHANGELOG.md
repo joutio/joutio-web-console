@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/joutio/joutio-web-console/compare/v1.3.0...v1.3.1) (2026-11-20)
+
+### Bug Fixes
+
+* **docker:** rebuild on patched base images ([d28cf8f](https://github.com/joutio/joutio-web-console/commit/d28cf8f626b1752b60904b93dfabf35305a460d4))
+
 ## [1.3.0](https://github.com/joutio/joutio-web-console/compare/v1.2.0...v1.3.0) (2026-11-15)
 
 ### Features
